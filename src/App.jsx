@@ -286,7 +286,7 @@ ${result.description || ""}
 
                 <div className="improved-title">{result.improvedTitle}</div>
 
-                {renderScorePanel()}
+                {renderScorePanel(result, getScoreColor, getScoreLabel)}
 
                 <button
                   className="copy-btn"
@@ -441,6 +441,48 @@ ${result.description || ""}
          
         </section>
       </main>
+    </div>
+  );
+}
+
+function renderScorePanel(result, getScoreColor, getScoreLabel) {
+  if (!result) return null;
+
+  return (
+    <div className="score-card">
+      <div className="score-header">
+        <div>
+          <p className="score-kicker">SEO SCORE</p>
+
+          <div
+            className="score-number"
+            style={{ color: getScoreColor(result.score || 0) }}
+          >
+            {result.score || 0}/100
+          </div>
+
+          <div
+            className="score-label"
+            style={{ background: getScoreColor(result.score || 0) }}
+          >
+            {getScoreLabel(result.score || 0)}
+          </div>
+        </div>
+
+        <div className="score-side">
+          <span>SEO Strength</span>
+          <strong>{result.score || 0}/100</strong>
+        </div>
+      </div>
+
+      <div className="bar">
+        <div
+          style={{
+            width: `${result.score || 0}%`,
+            background: getScoreColor(result.score || 0),
+          }}
+        />
+      </div>
     </div>
   );
 }

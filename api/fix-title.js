@@ -1,75 +1,72 @@
 export default async function handler(req, res) {
-    // Allow POST only
-    if (req.method !== "POST") {
-      return res.status(405).json({
-        error: "Method not allowed",
-      });
-    }
-  
     try {
-      const { title, vibe } = req.body;
-  
-      if (!title) {
-        return res.status(400).json({
-          error: "Title is required",
+      if (req.method !== "POST") {
+        return res.status(405).json({
+          error: "Method not allowed",
         });
       }
   
-      const prompt = `
-  You are a top Etsy SEO expert.
+      const { title, vibe } = req.body;
   
-  Rewrite this Etsy title to improve:
-  - SEO
-  - buyer appeal
-  - clarity
-  - search intent
-  
-  STYLE/VIBE:
-  ${vibe || "General"}
-  
-  CURRENT TITLE:
-  ${title}
-  
-  Return ONLY the improved Etsy title.
-  `;
-  
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: "You are an Etsy SEO optimization expert.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-          temperature: 0.7,
-          max_tokens: 120,
-        }),
-      });
-  
-      const data = await response.json();
-  
-      const optimizedTitle =
-        data.choices?.[0]?.message?.content || "No title generated.";
+      console.log("REQUEST:", title, vibe);
   
       return res.status(200).json({
-        success: true,
-        optimizedTitle,
+        improvedTitle: `${title} | Optimized Etsy Title`,
+        score: 82,
+  
+        tags: [
+          "dog svg",
+          "pet svg",
+          "cute dog png",
+          "dog lover gift",
+          "puppy clipart",
+          "animal svg",
+          "etsy dog file",
+          "pet lover png",
+          "dog mom gift",
+          "cricut dog svg",
+          "funny dog art",
+          "dog design",
+          "digital download",
+        ],
+  
+        keywords: {
+          primary: ["dog svg", "pet png"],
+          longTail: ["cute dog svg for cricut"],
+          buyerIntent: ["dog lover gift"],
+        },
+  
+        description:
+          "This optimized Etsy listing is designed to improve click-through rate and search visibility.",
+  
+        whyBetter: [
+          "Better keyword placement",
+          "Improved buyer intent",
+          "More searchable structure",
+        ],
+  
+        whatWasWrong: [
+          "Original title too short",
+          "Missing searchable phrases",
+        ],
+  
+        suggestions: [
+          "Add seasonal keywords during holidays",
+        ],
+  
+        missedOpportunities: [
+          {
+            keyword: "dog mom svg",
+            reason: "High search potential",
+            impact: "Could improve visibility",
+          },
+        ],
       });
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
   
       return res.status(500).json({
-        error: "Something went wrong.",
+        error: "Server crashed",
       });
     }
   }
