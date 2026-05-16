@@ -1,0 +1,32 @@
+step 1
+
+Open terminal in your backend folder: windows button cmd
+
+cd C:\Users\Eddie\engine34\engine33-fix-title\engine33-clean-reset
+
+
+bash
+node server.js
+
+
+You should see:
+
+Server running on http://localhost:3001
+
+
+step 2
+open second terminal in your frontend folder: windows button cmd
+
+cd C:\Users\Eddie\engine34\engine33-fix-title\engine33-clean-reset
+
+
+bash
+npm run dev
+
+you should see
+Local: http://localhost:5173/
+
+step 3 open browser
+http://localhost:5173
+
+if it fails ask chatgpt
