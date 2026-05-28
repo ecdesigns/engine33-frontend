@@ -37,10 +37,10 @@ export default function App() {
   };
 
   const getScoreLabel = (score) => {
-    if (score >= 86) return "High Performing";
-    if (score >= 76) return "Strong";
-    if (score >= 66) return "Good";
-    return "Needs Work";
+    if (score >= 85) return "High-Performing Listing";
+    if (score >= 70) return "Solid Listing";
+    if (score >= 50) return "Needs Work";
+    return "Poorly Optimized";
   };
 
   const getScoreColor = (score) => {
@@ -454,13 +454,7 @@ ${result.description || ""}
                 <div className="result-header">
                   <div>
                     <p className="eyebrow">Your optimized listing</p>
-                    <h2>🚀 {result?.improvedScore >= 85
-  ? "High-Performing Listing"
-  : result?.improvedScore >= 70
-  ? "Solid Listing"
-  : result?.improvedScore >= 50
-  ? "Needs Work"
-  : "Poorly Optimized"}</h2>
+                    <h2>🚀 {getScoreLabel(result?.improvedScore)}</h2>
                   </div>
                 </div>
 
