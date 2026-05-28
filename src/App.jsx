@@ -9,19 +9,8 @@ export default function App() {
   const [result, setResult] = React.useState(null);
   const [error, setError] = React.useState("");
   const [progress, setProgress] = React.useState(0);
-  const loadingMessages = [
-    "Analyzing Etsy keywords...",
-    "Checking buyer intent...",
-    "Generating high-converting tags...",
-    "Optimizing SEO structure...",
-    "Building listing description...",
-  ];
-  
-  const [loadingMessageIndex, setLoadingMessageIndex] = React.useState(0);
   const [copiedText, setCopiedText] = React.useState("");
   const [copiedTag, setCopiedTag] = React.useState(null);
-
-  const API_BASE = "";
 
   const handleCopy = async (text, label) => {
     if (!text) return;
@@ -37,121 +26,16 @@ export default function App() {
   };
 
   const getScoreLabel = (score) => {
-    if (score >= 85) return "High-Performing Listing";
-    if (score >= 70) return "Solid Listing";
-    if (score >= 50) return "Needs Work";
-    return "Poorly Optimized";
+    if (score >= 86) return "High Performing";
+    if (score >= 76) return "Strong";
+    if (score >= 66) return "Good";
+    return "Needs Work";
   };
 
   const getScoreColor = (score) => {
     if (score >= 85) return "#22c55e";
     if (score >= 70) return "#f59e0b";
     return "#ef4444";
-  };
-
-  const calculateSeoScore = (title) => {
-    if (!title) return 0;
-  
-    const cleanTitle = title.toLowerCase().trim();
-  
-    // Remove separators for cleaner analysis
-    const normalized = cleanTitle.replace(/[|,-]/g, " ");
-  
-    const words = normalized.split(/\s+/).filter(Boolean);
-    const uniqueWords = new Set(words);
-  
-    let score = 35; // base score
-  
-    // -----------------------------
-    // TITLE LENGTH
-    // -----------------------------
-    const length = title.length;
-  
-    if (length >= 110 && length <= 140) {
-      score += 22;
-    } else if (length >= 80) {
-      score += 16;
-    } else if (length >= 55) {
-      score += 10;
-    } else if (length < 25) {
-      score -= 18;
-    }
-  
-    // -----------------------------
-    // KEYWORD DEPTH
-    // -----------------------------
-    score += Math.min(words.length * 1.8, 18);
-  
-    // -----------------------------
-    // BUYER INTENT TERMS
-    // -----------------------------
-    const buyerTerms = [
-      "svg",
-      "png",
-      "bundle",
-      "download",
-      "digital",
-      "clipart",
-      "template",
-      "shirt",
-      "mug",
-      "gift",
-      "cricut",
-      "printable",
-      "wall art",
-      "sticker",
-      "invitation",
-    ];
-  
-    let buyerMatches = 0;
-  
-    buyerTerms.forEach((term) => {
-      if (cleanTitle.includes(term)) {
-        buyerMatches++;
-      }
-    });
-  
-    score += Math.min(buyerMatches * 3, 24);
-  
-    // -----------------------------
-    // UNIQUE WORD RATIO
-    // -----------------------------
-    const uniquenessRatio = uniqueWords.size / words.length;
-  
-    if (uniquenessRatio >= 0.9) {
-      score += 6;
-    } else if (uniquenessRatio < 0.7) {
-      score -= 8;
-    }
-  
-    // -----------------------------
-    // PENALIZE WEAK SHORT TITLES
-    // -----------------------------
-    if (words.length <= 2) {
-      score -= 28;
-    }
-  
-    if (words.length === 1) {
-      score -= 18;
-    }
-  
-    // -----------------------------
-    // TITLE QUALITY BONUSES
-    // -----------------------------
-    if (cleanTitle.includes("|")) {
-      score += 4;
-    }
-  
-    if (words.length >= 10) {
-      score += 5;
-    }
-  
-    // -----------------------------
-    // FINAL CLAMP
-    // -----------------------------
-    score = Math.max(12, Math.min(Math.round(score), 98));
-  
-    return score;
   };
 
   const fixTitle = async () => {
@@ -166,88 +50,27 @@ export default function App() {
     const progressTimer = setInterval(() => {
       setProgress((prev) => (prev >= 90 ? 90 : prev + 10));
     }, 250);
-    const loadingTextTimer = setInterval(() => {
-      setLoadingMessageIndex((prev) =>
-        prev >= loadingMessages.length - 1 ? 0 : prev + 1
-      );
-    }, 1400);
-    try {
-      const API_BASE =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3001"
-    : "";
 
-const res = await fetch(`${API_BASE}/api/fix-title`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ title, vibe }),
-});
+    try {
+      const res = await fetch("http://localhost:3001/api/fix-title", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, vibe }),
+      });
 
       const data = await res.json();
 
-console.log("API RESPONSE:", data);
+      if (!res.ok) throw new Error(data.error || "Backend failed");
 
-if (!res.ok) {
-  throw new Error(data.error || "Backend failed");
-}
-
-clearInterval(progressTimer);
-clearInterval(loadingTextTimer);
-setProgress(100);
-
-const originalScore = calculateSeoScore(title);
-const rawImprovedScore = calculateSeoScore(data.improvedTitle || "");
-
-// realistic improvement cap
-const maxAllowedIncrease =
-  originalScore < 20
-    ? 42
-    : originalScore < 40
-    ? 35
-    : originalScore < 60
-    ? 28
-    : 18;
-
-const improvedScore = Math.min(
-  rawImprovedScore,
-  originalScore + maxAllowedIncrease
-);
-
-setResult({
-  improvedTitle:
-    data.improvedTitle ||
-    data.result ||
-    "Optimized title generated successfully",
-
-  originalScore,
-  improvedScore,
-
-  tags: data.tags || [],
-
-  keywords: data.keywords || {
-    primary: [],
-    longTail: [],
-    buyerIntent: [],
-  },
-
-  description: data.description || "",
-
-  whyBetter: data.whyBetter || [],
-
-  whatWasWrong: data.whatWasWrong || [],
-
-  suggestions: data.suggestions || [],
-
-  missedOpportunities: data.missedOpportunities || [],
-});
-setTimeout(() => setLoading(false), 350);
+      clearInterval(progressTimer);
+      setProgress(100);
+      setResult(data);
+      setTimeout(() => setLoading(false), 350);
     } catch (err) {
       clearInterval(progressTimer);
       console.error(err);
       setLoading(false);
-      setError("Backend connection failed.");
+      setError("Backend not working. Make sure node server.js is running.");
     }
   };
 
@@ -257,7 +80,7 @@ setTimeout(() => setLoading(false), 350);
     try {
       setError("");
 
-      const res = await fetch(`${API_BASE}/api/improve`, {
+      const res = await fetch("http://localhost:3001/api/improve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -278,7 +101,7 @@ setTimeout(() => setLoading(false), 350);
       }
     } catch (err) {
       console.error("Improve failed", err);
-      setError("Improve failed.");
+      setError("Improve failed. Make sure your backend /api/improve route exists.");
     }
   };
 
@@ -308,36 +131,65 @@ ${result.description || ""}
     handleCopy(fullListing.trim(), "full");
   };
 
+  const renderScorePanel = () => {
+    if (!result) return null;
+
+    const score = Number(result.score || 0);
+    const circumference = 364;
+    const dashOffset = circumference - (circumference * score) / 100;
+    const color = getScoreColor(score);
+
+    return (
+      <div className="score-panel">
+        <div className="score-circle" style={{ ["--score-color"]: color }}>
+          <svg className="progress-ring" width="140" height="140">
+            <circle className="progress-bg" cx="70" cy="70" r="58" />
+            <circle
+              className="progress-bar"
+              cx="70"
+              cy="70"
+              r="58"
+              strokeDasharray={circumference}
+              strokeDashoffset={dashOffset}
+            />
+          </svg>
+
+          <div className="score-inner">
+            <div className="score-label-text">{getScoreLabel(score)}</div>
+          </div>
+        </div>
+
+        {result.scoreBreakdown && (
+          <div className="score-details">
+            <div className="score-details-header">
+              <h4>Listing Strength</h4>
+              <span>AI estimate</span>
+            </div>
+
+            <ScoreBar label="Title Quality" value={result.scoreBreakdown.title} max={30} />
+            <ScoreBar label="Tag Optimization" value={result.scoreBreakdown.tags} max={25} />
+            <ScoreBar label="Keyword Coverage" value={result.scoreBreakdown.keywords} max={25} />
+            <ScoreBar label="Description" value={result.scoreBreakdown.description} max={20} />
+
+            <p className="score-context">Optimized for Etsy search and buyer intent</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="app-shell">
       <header className="topbar">
         <div className="topbar-inner">
-          <div className="topbar-left">
-            <img src={logo} alt="Engine33" className="topbar-logo" />
-          </div>
-
-          <div className="topbar-right">
-            <span className="badge">Trusted by Etsy sellers</span>
-
-            <button
-              className="etsy-connect-btn"
-              onClick={() => {
-                window.location.href = `${API_BASE}/api/auth/etsy`;
-              }}
-            >
-              Connect Etsy Shop
-            </button>
-          </div>
+          <img src={logo} alt="Engine33" className="topbar-logo" />
+          <span className="badge">Trusted by Etsy sellers</span>
         </div>
       </header>
 
-      {/* KEEP REST OF YOUR JSX EXACTLY THE SAME */}
-
-   
-
       <main className="page">
         <section className="hero-compact">
-          <p className="hero-kicker">Built for Etsy sellers</p>
+          <p className="hero-kicker">Free Etsy SEO title fixer</p>
           <h1>Your title is losing you sales</h1>
           <p>
             Paste your Etsy title below and Engine33 will diagnose what is weak,
@@ -384,14 +236,7 @@ ${result.description || ""}
             </div>
 
             <button className="primary-btn" onClick={fixTitle} disabled={loading || !title.trim()}>
-            {loading ? (
-  <span className="loading-content">
-    <span className="spinner"></span>
-    Analyzing Listing...
-  </span>
-) : (
-  "Fix My Title Free"
-)}
+              {loading ? "Fixing Listing..." : "Fix My Title Free"}
             </button>
 
             <p className="trust-line">
@@ -401,7 +246,7 @@ ${result.description || ""}
             {loading && (
               <div className="progress-wrap">
                 <div className="progress-label">
-                  <span>{loadingMessages[loadingMessageIndex]}</span>
+                  <span>Optimizing listing...</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="progress-track">
@@ -418,32 +263,9 @@ ${result.description || ""}
 
             {error && <div className="error">{error}</div>}
           </section>
+
           <section className="card result-card">
-          {loading ? (
-  <div className="skeleton-card">
-    <div className="skeleton skeleton-title"></div>
-
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "24px",
-        marginTop: "24px",
-      }}
-    >
-      <div className="skeleton skeleton-score"></div>
-
-      <div style={{ flex: 1 }}>
-        <div className="skeleton skeleton-line"></div>
-        <div className="skeleton skeleton-line short"></div>
-      </div>
-    </div>
-
-    <div className="skeleton skeleton-line"></div>
-    <div className="skeleton skeleton-line"></div>
-    <div className="skeleton skeleton-line short"></div>
-  </div>
-) : !result ? (
+            {!result ? (
               <div className="empty">
                 <div className="empty-icon">🚀</div>
                 <h2>{loading ? "Building your optimized listing..." : "Your optimized listing will appear here"}</h2>
@@ -453,18 +275,14 @@ ${result.description || ""}
               <>
                 <div className="result-header">
                   <div>
-                    <p className="eyebrow">Your optimized listing</p>
-                    <h2>🚀 {getScoreLabel(result?.improvedScore)}</h2>
+                    <p className="eyebrow">Optimized output</p>
+                    <h2>🚀 High-Performing Listing</h2>
                   </div>
                 </div>
 
                 <div className="improved-title">{result.improvedTitle}</div>
 
-                <ScorePanel
-  result={result}
-  getScoreColor={getScoreColor}
-  getScoreLabel={getScoreLabel}
-/>
+                {renderScorePanel()}
 
                 <button
                   className="copy-btn"
@@ -616,191 +434,12 @@ ${result.description || ""}
               </>
             )}
           </section>
-         
         </section>
       </main>
     </div>
   );
 }
 
-function ScorePanel({ result, getScoreColor, getScoreLabel }) {
-  if (!result) return null;
-
-  const score = result.improvedScore || 0;
-  
-
-  const [animatedScore, setAnimatedScore] = React.useState(0);
-
-  React.useEffect(() => {
-    let current = 0;
-
-    const interval = setInterval(() => {
-      current += 1;
-
-      if (current >= score) {
-        current = score;
-        clearInterval(interval);
-      }
-
-      setAnimatedScore(current);
-    }, 12);
-
-    return () => clearInterval(interval);
-  }, [score]);
-
-  return (
-    <div className="score-card">
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "24px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-          marginTop: "28px",
-        }}
-      >
-        {/* CIRCLE SCORE */}
-        <div
-          style={{
-            width: "170px",
-            height: "170px",
-            borderRadius: "50%",
-            background: `conic-gradient(
-              #4f46e5 0%,
-              #7c3aed ${animatedScore * 0.7}%,
-              #22c55e ${animatedScore}%,
-              #e5e7eb ${animatedScore}% 100%
-            )`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            boxShadow: "0 0 30px rgba(99,102,241,0.18)",
-            flexShrink: 0,
-            transition: "all 0.25s ease",
-          }}
-        >
-          <div
-            style={{
-              width: "146px",
-              height: "146px",
-              borderRadius: "50%",
-              background: "#ffffff",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "54px",
-                fontWeight: "800",
-                lineHeight: 1,
-                color: "#0f172a",
-              }}
-            >
-              {animatedScore}
-            </div>
-
-            <div
-              style={{
-                marginTop: "6px",
-                fontSize: "14px",
-                fontWeight: "700",
-                letterSpacing: ".08em",
-                color: "#64748b",
-              }}
-            >
-              SEO SCORE
-            </div>
-          </div>
-        </div>
-
-        {/* SCORE TEXT */}
-        <div>
-          <p
-            style={{
-              fontSize: "14px",
-              fontWeight: "700",
-              letterSpacing: ".08em",
-              textTransform: "uppercase",
-              color: "#64748b",
-              marginBottom: "6px",
-            }}
-          >
-            SEO SCORE
-          </p>
-          <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "14px",
-    marginTop: "18px",
-  }}
->
-  <div
-    style={{
-      background: "#fef2f2",
-      color: "#dc2626",
-      padding: "10px 14px",
-      borderRadius: "12px",
-      fontWeight: "700",
-      fontSize: "14px",
-    }}
-  >
-    Original: {result.originalScore}
-  </div>
-
-  <div
-    style={{
-      fontSize: "20px",
-      color: "#64748b",
-      fontWeight: "700",
-    }}
-  >
-    →
-  </div>
-
-  <div
-    style={{
-      background: "#ecfdf5",
-      color: "#16a34a",
-      padding: "10px 14px",
-      borderRadius: "12px",
-      fontWeight: "700",
-      fontSize: "14px",
-    }}
-  >
-    Optimized: {result.improvedScore}
-  </div>
-</div>
-          <h3
-            style={{
-              fontSize: "36px",
-              fontWeight: "800",
-              color: "#0f172a",
-              marginBottom: "8px",
-            }}
-          >
-            {getScoreLabel(score)}
-          </h3>
-
-          <p
-            style={{
-              color: "#64748b",
-              maxWidth: "420px",
-              lineHeight: 1.5,
-            }}
-          >
-            Built to rank higher, attract clicks, and convert buyers.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 function ScoreBar({ label, value, max }) {
   const percent = Math.min((Number(value || 0) / max) * 100, 100);
 
