@@ -26,12 +26,13 @@ export default function App() {
   };
 
   const getScoreLabel = (score) => {
-    if (score >= 86) return "High Performing";
-    if (score >= 76) return "Strong";
-    if (score >= 66) return "Good";
-    return "Needs Work";
+    if (score >= 86) return "High-performing estimate";
+    if (score >= 76) return "Strong estimate";
+    if (score >= 66) return "Good estimate";
+    return "Needs improvement";
   };
 
+  
   const getScoreColor = (score) => {
     if (score >= 85) return "#22c55e";
     if (score >= 70) return "#f59e0b";
@@ -155,6 +156,8 @@ ${result.description || ""}
           </svg>
 
           <div className="score-inner">
+          <div className="score-number">{score}</div>
+          <div className="score-label-text">SEO SCORE</div>
             <div className="score-label-text">{getScoreLabel(score)}</div>
           </div>
         </div>
@@ -276,7 +279,7 @@ ${result.description || ""}
                 <div className="result-header">
                   <div>
                     <p className="eyebrow">Optimized output</p>
-                    <h2>🚀 High-Performing Listing</h2>
+                    <h2>🚀 {getScoreLabel(result.score)}</h2>
                   </div>
                 </div>
 
