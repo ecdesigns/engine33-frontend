@@ -196,7 +196,11 @@ Return exactly 3 specific issues from the original input.
 
     data.score = scoreData.total;
     data.scoreBreakdown = scoreData.breakdown;
-    data.suggestions = getSuggestions(scoreData.breakdown);
+    data.suggestions = getSuggestions(
+      scoreData.breakdown,
+      data,
+      title
+    );
     data.missedOpportunities = getMissedOpportunities(data);
     data.quickWins = generateQuickWins(data);
     data.scoreLabel = getScoreLabel(data.score);
@@ -588,30 +592,68 @@ return { total, breakdown };
 
 }
 
-function getSuggestions(breakdown) {
+function getSuggestions(breakdown, data = {}, originalTitle = "") {
   const suggestions = [];
 
-  if (breakdown.title < 24) {
-    suggestions.push("Strengthen the title with clearer buyer-intent keywords and product format.");
+  const originalLength = String(originalTitle || "").length;
+  const newLength = String(data.improvedTitle || "").length;
+
+  const title = String(data.improvedTitle || "").toLowerCase();
+  const tags = data.tags || [];
+
+  if (newLength > originalLength + 20) {
+    suggestions.push(
+      `Expanded title length from ${originalLength} → ${newLength} characters for stronger Etsy indexing.`
+    );
   }
 
-  if (breakdown.tags < 22) {
-    suggestions.push("Improve tag variety with more niche use cases and less generic wording.");
+  if (
+    title.includes("instant download") ||
+    title.includes("digital download")
+  ) {
+    suggestions.push(
+      `Added buyer-intent phrase: "instant download".`
+    );
   }
 
-  if (breakdown.keywords < 20) {
-    suggestions.push("Add stronger primary, long-tail, and buyer-intent keyword coverage.");
+  if (
+    title.includes("svg") ||
+    title.includes("png") ||
+    title.includes("template")
+  ) {
+    suggestions.push(
+      `Added product-format keyword targeting for Etsy search relevance.`
+    );
   }
 
-  if (breakdown.description < 17) {
-    suggestions.push("Improve the description with clearer benefits, structure, and technical details when relevant.");
+  if (
+    title.includes("cricut") ||
+    title.includes("silhouette")
+  ) {
+    suggestions.push(
+      `Included Cricut-specific search phrase coverage.`
+    );
+  }
+
+  if (tags.length >= 13) {
+    suggestions.push(
+      `Expanded tag coverage to all 13 Etsy tag slots.`
+    );
+  }
+
+  if (breakdown.keywords >= 18) {
+    suggestions.push(
+      `Improved long-tail keyword coverage for buyer searches.`
+    );
   }
 
   if (!suggestions.length) {
-    suggestions.push("Test one alternate version of this title to compare buyer appeal.");
+    suggestions.push(
+      "Improved keyword structure and buyer search targeting."
+    );
   }
 
-  return suggestions.slice(0, 1);
+  return suggestions.slice(0, 4);
 }
 
 function getMissedOpportunities(data) {
