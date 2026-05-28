@@ -454,7 +454,13 @@ ${result.description || ""}
                 <div className="result-header">
                   <div>
                     <p className="eyebrow">Your optimized listing</p>
-                    <h2>🚀 High-Performing Listing</h2>
+                    <h2>🚀 {result?.improvedScore >= 85
+  ? "High-Performing Listing"
+  : result?.improvedScore >= 70
+  ? "Solid Listing"
+  : result?.improvedScore >= 50
+  ? "Needs Work"
+  : "Poorly Optimized"}</h2>
                   </div>
                 </div>
 
