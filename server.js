@@ -15,6 +15,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+app.get("/auth/etsy", (req, res) => {
+  res.send("Etsy OAuth connection coming next.");
+});
+
 app.get("/", (req, res) => {
   res.send("Engine33 backend is running");
 });
@@ -559,29 +563,29 @@ function calculateScore(data) {
   }
 
   breakdown.title = Math.max(0, Math.min(breakdown.title, 30));
-  breakdown.tags = Math.max(0, Math.min(breakdown.tags, 25));
-  breakdown.keywords = Math.max(0, Math.min(breakdown.keywords, 25));
-  breakdown.description = Math.max(0, Math.min(breakdown.description, 20));
+breakdown.tags = Math.max(0, Math.min(breakdown.tags, 25));
+breakdown.keywords = Math.max(0, Math.min(breakdown.keywords, 25));
+breakdown.description = Math.max(0, Math.min(breakdown.description, 20));
 
-  let total =
-    breakdown.title +
-    breakdown.tags +
-    breakdown.keywords +
-    breakdown.description;
+let total =
+  breakdown.title +
+  breakdown.tags +
+  breakdown.keywords +
+  breakdown.description;
 
-  if (
-    breakdown.title === 30 &&
-    breakdown.tags === 25 &&
-    breakdown.keywords === 25 &&
-    breakdown.description === 20
-  ) {
-    total -= 5;
-  }
+// realism balancing
+if (title.length < 12) total -= 18;
+if (tags.length < 8) total -= 10;
+if (primary.length < 2) total -= 8;
 
-  if (total < 50) total = 50;
-  if (total > 94) total = 94;
+// prevent fake perfect scores
+if (total > 94) total = 94;
 
-  return { total, breakdown };
+// never negative
+if (total < 8) total = 8;
+
+return { total, breakdown };
+
 }
 
 function getSuggestions(breakdown) {

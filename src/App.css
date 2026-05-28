@@ -3,7 +3,7 @@
 }
 
 :root {
-  --bg: #f5f7fb;
+  --bg: #f8fafc;
   --card: #ffffff;
   --ink: #0f172a;
   --muted: #64748b;
@@ -19,8 +19,8 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 32%),
-    radial-gradient(circle at top right, rgba(34, 197, 94, 0.06), transparent 28%),
+  radial-gradient(circle at top left, rgba(37, 99, 235, 0.045), transparent 38%),
+  radial-gradient(circle at top right, rgba(99, 102, 241, 0.035), transparent 34%),
     var(--bg);
   color: var(--ink);
 }
@@ -161,10 +161,18 @@ button:disabled {
 .result-card {
   grid-column: 2;
   grid-row: 1;
+  animation: fadeUp 0.45s ease;
 }
 
 .result-card {
   padding: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+
+  display: flex;
+flex-direction: column;
+gap: 28px;
 }
 
 .card-heading-row {
@@ -367,7 +375,8 @@ textarea {
 
 .result-header h2 {
   margin: 0;
-  font-size: 25px;
+  font-size: clamp(18px, 2vw, 22px);
+line-height: 1.25;
   letter-spacing: -0.03em;
 }
 
@@ -389,13 +398,14 @@ textarea {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 18px;
-  padding: 16px;
-  margin: 14px 0 18px;
+  padding: 24px;
+  margin: 22px 0 22px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 .score-circle {
-  width: 124px;
-  height: 124px;
+  width: 110px;
+  height: 110px;
   position: relative;
   display: flex;
   align-items: center;
@@ -838,5 +848,92 @@ textarea {
 
   .result-card {
     align-self: start;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.skeleton-card {
+  padding: 24px;
+  border-radius: 24px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  margin-top: 20px;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f8fafc 50%,
+    #e2e8f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 12px;
+}
+
+.skeleton-title {
+  height: 32px;
+  width: 70%;
+  margin-bottom: 20px;
+}
+
+.skeleton-score {
+  height: 120px;
+  width: 120px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.skeleton-line {
+  height: 18px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
   }
 }
